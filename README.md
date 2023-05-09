@@ -17,7 +17,7 @@ import (
 const output = "private.key"
 
 func main() {
-	if ok := easyencdec.GenerateKeyFile(output); !ok {
+	if err := easyencdec.GenerateKeyFile(output); err != nil {
 		log.Panicf("failed to write file to %s", output)
 	}
 }
@@ -40,7 +40,7 @@ const (
 )
 
 func main() {
-	if ok := easyencdec.EncryptFile(samplefile, decryptedfile, keyfile); !ok {
+	if err := easyencdec.EncryptFile(samplefile, decryptedfile, keyfile); err != nil {
 		log.Panicf("failed to encrypt file %s", samplefile)
 	}
 }
