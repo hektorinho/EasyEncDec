@@ -21,7 +21,7 @@ func TestGenerateKey(t *testing.T) {
 }
 
 func TestGenerateKeyFile(t *testing.T) {
-	if ok := GenerateKeyFile(testKeyFile); !ok {
+	if err := GenerateKeyFile(testKeyFile); err != nil {
 		t.Errorf("wasn't able to write %s", testKeyFile)
 	}
 }
@@ -44,8 +44,8 @@ func TestCombinedKeyAndMac(t *testing.T) {
 }
 
 func TestEncryptFile(t *testing.T) {
-	if ok := EncryptFile(testInputFile, testOutputFile, testKeyFile); !ok {
-		t.Errorf("wasn't able to encrypt file >>>>> success=%t", ok)
+	if err := EncryptFile(testInputFile, testOutputFile, testKeyFile); err != nil {
+		t.Errorf("wasn't able to encrypt file >>>>> success=%t", err)
 	}
 	if fi, err := os.Stat(testOutputFile); !os.IsNotExist(err) {
 		fmt.Printf("EncryptFile: successfully encrypted file %s >>> filename=%s, filesize=%d, filemode=%s\n", testOutputFile, fi.Name(), fi.Size(), fi.Mode())
