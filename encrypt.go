@@ -25,7 +25,7 @@ func Init() {
 	flag.StringVar(&key, "keyfile", "", "file containing the key used to encrypt")
 	flag.Parse()
 
-	if ok := EncryptFile(src, dst, key); !ok {
+	if err := EncryptFile(src, dst, key); err != nil {
 		log.Panicln("<<file failed to encrypt>>")
 	}
 }
@@ -118,23 +118,21 @@ func GenerateKey(n int) []byte {
 	return b
 }
 
-func GenerateKeyFile(output string) bool {
+func GenerateKeyFile(output string) error {
 	n := 15
 	bytes := GenerateKey(n)
 
 	if _, err := os.Stat(filepath.Dir(output)); os.IsNotExist(err) {
 		if err = os.Mkdir(filepath.Dir(output), 0700); err != nil {
-			fmt.Printf("failed to create directory %s >>>>>>> %s", filepath.Dir(output), err)
-			return false
+			return err
 		}
 	}
 
 	err := os.WriteFile(output, bytes, 0700)
 	if err != nil {
-		fmt.Printf("failed to write to %s: %s\n", output, err)
-		return false
+		return err
 	}
-	return true
+	return nil
 }
 
 func CombineKeyAndMac(keyFile string) ([]byte, error) {
@@ -150,36 +148,36 @@ func CombineKeyAndMac(keyFile string) ([]byte, error) {
 	return comb, nil
 }
 
-func EncryptFile(src string, dst string, key string) bool {
+func EncryptFile(src string, dst string, key string) error {
 
 	body, err := os.ReadFile(src)
 	if err != nil {
-		return false
+		return err
 	}
 
 	comb, err := CombineKeyAndMac(key)
 	if err != nil {
-		return false
+		return err
 	}
 
 	c, err := aes.NewCipher(comb)
 	if err != nil {
-		return false
+		return err
 	}
 
 	gcm, err := cipher.NewGCM(c)
 	if err != nil {
-		return false
+		return err
 	}
 
 	nonce := make([]byte, gcm.NonceSize())
 	if _, err = io.ReadFull(crand.Reader, nonce); err != nil {
-		return false
+		return err
 	}
 
 	err = ioutil.WriteFile(dst, gcm.Seal(nonce, nonce, body, nil), 0777)
 	if err != nil {
-		return false
+		return err
 	}
-	return true
+	return nil
 }
