@@ -1,4 +1,4 @@
-package jsonencrypter
+package easyencdec
 
 import (
 	"fmt"
